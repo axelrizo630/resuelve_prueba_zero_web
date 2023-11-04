@@ -2,7 +2,9 @@ version: '3.8'
 services:
   nest_server:
     container_name: resuelve_prueba_zero_nest_server
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -13,10 +15,12 @@ services:
       REDIS_PORT: ${REDIS_PORT}
       JWT_SECRET: ${JWT_SECRET}
     ports:
-      - 3000:3000
+      - :3000:3000
     depends_on:
       - postgres_database
       - redis_cache
+    volumes:
+      - .:/app
   postgres_database:
     container_name: resuelve_prueba_zero_postgres_database
     image: postgres:16-alpine
