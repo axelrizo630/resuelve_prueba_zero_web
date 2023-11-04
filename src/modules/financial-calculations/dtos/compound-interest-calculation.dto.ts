@@ -1,4 +1,4 @@
-import { IsInt, Min, IsNotEmpty } from 'class-validator';
+import { IsInt, Min, IsNotEmpty, IsDecimal } from 'class-validator';
 
 export class CompoundInterestDto {
   @IsInt()
@@ -6,9 +6,8 @@ export class CompoundInterestDto {
   @IsNotEmpty()
   readonly principal: number;
 
-  @IsInt()
-  @Min(0)
   @IsNotEmpty()
+  @IsDecimal()
   readonly annualRate: number;
 
   @IsInt()
