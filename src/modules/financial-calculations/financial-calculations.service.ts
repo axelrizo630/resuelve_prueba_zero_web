@@ -8,10 +8,6 @@ export class FinancialCalculationsService {
     compoundInterestCalculationDto: CompoundInterestDto,
   ): number {
     const { principal, annualRate, periods } = compoundInterestCalculationDto;
-    console.log(
-      'compoundInterestCalculationDto',
-      compoundInterestCalculationDto,
-    );
     const result =
       principal *
       (1 + Number(annualRate) / CAPITALIZATION_PERIODS) **
