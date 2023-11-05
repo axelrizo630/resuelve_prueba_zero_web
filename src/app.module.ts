@@ -10,7 +10,6 @@ import { ChuckNorrisJokesProxyModule } from './modules/chuck-norris-jokes-proxy/
 import { DatabaseModule } from './modules/database/database.module';
 import { FinancialCalculationsModule } from './modules/financial-calculations/financial-calculations.module';
 import { UsersModule } from './modules/users/users.module';
-import { ModulesService } from './api-keys/modules/modules.service';
 
 @Module({
   imports: [
@@ -28,8 +27,8 @@ import { ModulesService } from './api-keys/modules/modules.service';
     AuthModule,
     ApiKeysModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, ModulesService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
