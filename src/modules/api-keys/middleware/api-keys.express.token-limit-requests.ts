@@ -7,10 +7,12 @@ import {
 } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { NextFunction, Request, Response } from 'express';
+import { DateTime } from 'luxon';
 import { HOUR } from 'src/constants/time-measures';
 import { UsersService } from 'src/modules/users/users.service';
-
-const REQUESTS_LIMIT = 5;
+import { REQUESTS_LIMIT } from '../constants/api-keys.limit-requests';
+import { ApiKeyRedisValue } from '../types/api-key-redis-value.type';
+import { getCachedApiKeyFromUserId } from '../utils/getCacheApiKeyFromRedis';
 
 @Injectable()
 export class ExpressApiKeysTokenLimitRequests implements NestMiddleware {
@@ -19,30 +21,48 @@ export class ExpressApiKeysTokenLimitRequests implements NestMiddleware {
     private usersService: UsersService,
   ) {}
 
-  async use(req: Request, res: Response, next: NextFunction) {
+  async use(req: Request, _res: Response, next: NextFunction) {
     const apiKey = req.headers['x-api-key'];
-    if (!apiKey || Array.isArray(apiKey))
+
+    if (!apiKey || Array.isArray(apiKey)) {
       throw new ForbiddenException('Need api key');
+    }
 
     const user = await this.usersService.findUserByApiKey(apiKey);
     if (!user) throw new ForbiddenException('Invalid api key');
 
-    const redisUserIdKey = user.id.toString();
+    const redisUserIdKey = getCachedApiKeyFromUserId(user.id);
 
-    const userKeyUsages = await this.cacheManager.get<number>(redisUserIdKey);
-    if (!userKeyUsages) {
-      this.cacheManager.set(redisUserIdKey, 1, HOUR);
-      next();
+    const apiKeyValueFromRedis =
+      await this.cacheManager.get<ApiKeyRedisValue>(redisUserIdKey);
+    const expireDate =
+      apiKeyValueFromRedis && DateTime.fromISO(apiKeyValueFromRedis.expireDate);
+
+    if (
+      apiKeyValueFromRedis === null ||
+      (expireDate && expireDate < DateTime.local())
+    ) {
+      const apiKeyRedisValue: ApiKeyRedisValue = {
+        remainingRequests: REQUESTS_LIMIT,
+        expireDate: DateTime.local().plus({ hour: 1 }).toISO(),
+      };
+      this.cacheManager.set(redisUserIdKey, apiKeyRedisValue, { ttl: HOUR });
+      return next();
     }
 
-    if (userKeyUsages > REQUESTS_LIMIT)
+    if (apiKeyValueFromRedis.remainingRequests < 1) {
       throw new ForbiddenException(
         'Demasiadas solicitudes. Por favor, espere y vuelva a intentarlo más tarde.',
       );
+    }
 
-    const apiKeysUsagesCount = userKeyUsages + 1;
-    this.cacheManager.set(redisUserIdKey, apiKeysUsagesCount, HOUR);
+    const apiKeysUsagesCount = apiKeyValueFromRedis.remainingRequests - 1;
+    const apiKeyRedisValue: ApiKeyRedisValue = {
+      remainingRequests: apiKeysUsagesCount,
+      expireDate: apiKeyValueFromRedis.expireDate,
+    };
+    this.cacheManager.set(redisUserIdKey, apiKeyRedisValue, { ttl: HOUR });
 
-    next();
+    return next();
   }
 }
