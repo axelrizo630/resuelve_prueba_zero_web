@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
-import { UsersService } from './users.service';
 import { DataSource } from 'typeorm';
-import { User } from './entities/user.entity';
 import { DatabaseModule } from '../database/database.module';
+import { JwtTokenModule } from '../jwt-token/jwt-token.module';
+import { User } from './entities/user.entity';
 import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, JwtTokenModule],
   providers: [
     UsersService,
     {

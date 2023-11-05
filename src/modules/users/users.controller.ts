@@ -6,9 +6,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
   @Get('my-api-key')
   async getMyApiKey(@Headers('authorization') authorization: string) {
-    const token = authorization.split(' ')[1];
-
-    const user = await this.usersService.getUserByJWT(token);
+    const user = await this.usersService.getUserByJWT(authorization);
 
     return { apiKey: user.apiKey };
   }
