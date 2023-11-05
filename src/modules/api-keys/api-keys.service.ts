@@ -17,7 +17,7 @@ export class ApiKeysService {
     const remainingRequests = await this.cacheManager.get<ApiKeyRedisValue>(
       getCachedApiKeyFromUserId(decodedToken.id),
     );
-    if (remainingRequests === null) return REQUESTS_LIMIT;
+    if (remainingRequests.remainingRequests === null) return REQUESTS_LIMIT;
     return remainingRequests.remainingRequests;
   }
 }

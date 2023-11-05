@@ -1,6 +1,8 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   NestMiddleware,
@@ -39,7 +41,7 @@ export class ExpressApiKeysTokenLimitRequests implements NestMiddleware {
       apiKeyValueFromRedis && DateTime.fromISO(apiKeyValueFromRedis.expireDate);
 
     if (
-      apiKeyValueFromRedis === null ||
+      apiKeyValueFromRedis.remainingRequests === null ||
       (expireDate && expireDate < DateTime.local())
     ) {
       const apiKeyRedisValue: ApiKeyRedisValue = {
@@ -51,8 +53,14 @@ export class ExpressApiKeysTokenLimitRequests implements NestMiddleware {
     }
 
     if (apiKeyValueFromRedis.remainingRequests < 1) {
-      throw new ForbiddenException(
-        'Demasiadas solicitudes. Por favor, espere y vuelva a intentarlo más tarde.',
+      throw new HttpException(
+        {
+          statusbar: HttpStatus.TOO_MANY_REQUESTS,
+          error: 'Too Many Requests',
+          message:
+            'Demasiadas solicitudes. Por favor, espere y vuelva a intentarlo más tarde.',
+        },
+        429,
       );
     }
 
