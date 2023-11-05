@@ -10,6 +10,7 @@ import { ChuckNorrisJokesProxyModule } from './modules/chuck-norris-jokes-proxy/
 import { DatabaseModule } from './modules/database/database.module';
 import { FinancialCalculationsModule } from './modules/financial-calculations/financial-calculations.module';
 import { UsersModule } from './modules/users/users.module';
+import { JwtTokenModule } from './modules/jwt-token/jwt-token.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { UsersModule } from './modules/users/users.module';
     UsersModule,
     AuthModule,
     ApiKeysModule,
+    JwtTokenModule,
   ],
   controllers: [],
   providers: [],
