@@ -9,8 +9,8 @@ export class ChuckNorrisJokesProxyController {
   ) {}
 
   @Get('random')
-  async getRandomJoke(@Query() body: GetRandomJokeQueryParamsDto) {
-    return await this.chuckNorrisJokesProxyService.getRandomJoke(body);
+  async getRandomJoke(@Query() query: GetRandomJokeQueryParamsDto) {
+    return await this.chuckNorrisJokesProxyService.getRandomJoke(query);
   }
 
   @Get('categories')

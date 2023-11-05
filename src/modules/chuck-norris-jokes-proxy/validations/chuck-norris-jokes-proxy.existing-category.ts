@@ -20,6 +20,7 @@ export class ChuckNorrisJokesProxyExitingCategory
   ) {}
 
   async validate(value: string): Promise<boolean> {
+    if (!value) return true;
     const categories =
       await this.chuckNorrisJokesProxyService.getJokesCategories();
     return categories.includes(value);
