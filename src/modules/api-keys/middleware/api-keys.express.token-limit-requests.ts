@@ -27,9 +27,11 @@ export class ExpressApiKeysTokenLimitRequests implements NestMiddleware {
     const user = await this.usersService.findUserByApiKey(apiKey);
     if (!user) throw new ForbiddenException('Invalid api key');
 
-    const userKeyUsages = await this.cacheManager.get<number>(user.id);
+    const redisUserIdKey = user.id.toString();
+
+    const userKeyUsages = await this.cacheManager.get<number>(redisUserIdKey);
     if (!userKeyUsages) {
-      this.cacheManager.set(user.id, 1, HOUR);
+      this.cacheManager.set(redisUserIdKey, 1, HOUR);
       next();
     }
 
@@ -39,7 +41,7 @@ export class ExpressApiKeysTokenLimitRequests implements NestMiddleware {
       );
 
     const apiKeysUsagesCount = userKeyUsages + 1;
-    this.cacheManager.set(user.id, apiKeysUsagesCount, HOUR);
+    this.cacheManager.set(redisUserIdKey, apiKeysUsagesCount, HOUR);
 
     next();
   }

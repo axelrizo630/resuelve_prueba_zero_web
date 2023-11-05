@@ -22,7 +22,10 @@ export class AuthService {
     if (!isPasswordValid) throw new BadRequestException('Password is invalid');
 
     const payload = {
-      token: this.jwtService.sign({ username: user.username }),
+      token: this.jwtService.sign({
+        username: user.username,
+        id: user.id,
+      }),
     };
     return payload;
   }
@@ -38,7 +41,10 @@ export class AuthService {
 
     const newUser = await this.userService.create(userWithHashedPassword);
     const payload = {
-      token: this.jwtService.sign({ username: newUser.username }),
+      token: this.jwtService.sign({
+        username: newUser.username,
+        id: newUser.id,
+      }),
     };
     return payload;
   }
