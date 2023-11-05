@@ -40,10 +40,11 @@ export class ExpressApiKeysTokenLimitRequests implements NestMiddleware {
     const expireDate =
       apiKeyValueFromRedis && DateTime.fromISO(apiKeyValueFromRedis.expireDate);
 
-    if (
-      apiKeyValueFromRedis.remainingRequests === null ||
-      (expireDate && expireDate < DateTime.local())
-    ) {
+    const hasRedisCachedApiKey =
+      apiKeyValueFromRedis && apiKeyValueFromRedis.remainingRequests !== null;
+    const isApiKeyExpired = expireDate && expireDate < DateTime.local();
+
+    if (!hasRedisCachedApiKey || isApiKeyExpired) {
       const apiKeyRedisValue: ApiKeyRedisValue = {
         remainingRequests: REQUESTS_LIMIT,
         expireDate: DateTime.local().plus({ hour: 1 }).toISO(),
@@ -52,7 +53,8 @@ export class ExpressApiKeysTokenLimitRequests implements NestMiddleware {
       return next();
     }
 
-    if (apiKeyValueFromRedis.remainingRequests < 1) {
+    const hasRemainingRequests = apiKeyValueFromRedis.remainingRequests > 0;
+    if (!hasRemainingRequests) {
       throw new HttpException(
         {
           statusbar: HttpStatus.TOO_MANY_REQUESTS,
