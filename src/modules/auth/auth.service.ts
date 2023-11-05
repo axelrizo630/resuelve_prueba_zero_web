@@ -19,7 +19,7 @@ export class AuthService {
       );
 
     const isPasswordValid = bcrypt.compareSync(body.password, user.password);
-    if (!isPasswordValid) throw new BadRequestException('Invalid credentials');
+    if (!isPasswordValid) throw new BadRequestException('Password is invalid');
 
     const payload = {
       token: this.jwtService.sign({ username: user.username }),
@@ -36,9 +36,9 @@ export class AuthService {
       password: bcrypt.hashSync(body.password, bcrypt.genSaltSync(10)),
     };
 
-    await this.userService.create(userWithHashedPassword);
+    const newUser = await this.userService.create(userWithHashedPassword);
     const payload = {
-      token: this.jwtService.sign({ username: user.username }),
+      token: this.jwtService.sign({ username: newUser.username }),
     };
     return payload;
   }
