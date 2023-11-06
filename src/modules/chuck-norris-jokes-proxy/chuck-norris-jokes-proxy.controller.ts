@@ -8,6 +8,7 @@ import {
 } from '@nestjs/swagger';
 import { ChuckNorrisJokesProxyService } from './chuck-norris-jokes-proxy.service';
 import { GetRandomJokeQueryParamsDto } from './dtos/get-random-joke-query-params.dto';
+import { ChuckNorrisJokesProxyEntity } from './entities/chuck-norris-jokes-proxy.entity';
 
 @Controller('chuck-norris-jokes')
 @ApiTags('Chuck Norris Jokes Proxy')
@@ -17,16 +18,6 @@ export class ChuckNorrisJokesProxyController {
   ) {}
 
   @Get('random')
-  // @ApiResponse({
-  //   status: 200,
-  //   description: 'The found record',
-  //   headers: { test: { required: true } },
-  //   type: ChuckNorrisJokesProxyEntity,
-  // })
-  // @ApiResponse({
-  //   status: 403,
-  //   description: 'You are not providing with a API KEY in the headers',
-  // })
   @ApiOperation({
     summary: 'Get a random Joke using optional query OR category',
   })
@@ -38,6 +29,7 @@ export class ChuckNorrisJokesProxyController {
   @ApiResponse({
     status: 200,
     description: 'The random Joke or Jokes depends on query query param',
+    type: ChuckNorrisJokesProxyEntity,
   })
   @ApiResponse({
     status: 429,
@@ -47,7 +39,9 @@ export class ChuckNorrisJokesProxyController {
     status: 403,
     description: 'There is a error with the API KEY provided',
   })
-  async getRandomJoke(@Query() query: GetRandomJokeQueryParamsDto) {
+  async getRandomJoke(
+    @Query() query: GetRandomJokeQueryParamsDto,
+  ): Promise<ChuckNorrisJokesProxyEntity | ChuckNorrisJokesProxyEntity[]> {
     return await this.chuckNorrisJokesProxyService.getRandomJoke(query);
   }
 
