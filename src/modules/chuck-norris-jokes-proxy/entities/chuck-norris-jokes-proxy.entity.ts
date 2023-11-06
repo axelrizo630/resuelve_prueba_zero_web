@@ -1,8 +1,31 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class ChuckNorrisJokesProxyEntity {
+  @ApiProperty({
+    example: '9kmZLclWRWWTdUvMoNegSQ',
+    description: 'Id of the joke',
+  })
   id: string;
+  @ApiProperty({
+    example: '2020-01-05 13:42:28.664997',
+    description: 'Creation Date',
+  })
   created_at: Date;
+  @ApiProperty({
+    example: '2020-01-05 13:42:28.664997',
+    description: 'Update Date',
+  })
   updated_at: Date;
+  @ApiProperty({
+    example: '["political"]',
+    description: 'Categories that correspond',
+  })
   categories: string[];
+  @ApiProperty({
+    example:
+      'hen Barack Obama said "Yes we can," he actually was referring to Chuck Norris',
+    description: 'The joke',
+  })
   value: string;
 
   constructor(data: {
