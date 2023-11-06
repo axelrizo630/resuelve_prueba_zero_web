@@ -46,7 +46,7 @@ export class ExpressApiKeysTokenLimitRequests implements NestMiddleware {
 
     if (!hasRedisCachedApiKey || isApiKeyExpired) {
       const apiKeyRedisValue: ApiKeyRedisValue = {
-        remainingRequests: REQUESTS_LIMIT,
+        remainingRequests: REQUESTS_LIMIT - 1,
         expireDate: DateTime.local().plus({ hour: 1 }).toISO(),
       };
       this.cacheManager.set(redisUserIdKey, apiKeyRedisValue, { ttl: HOUR });
